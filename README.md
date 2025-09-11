@@ -702,7 +702,6 @@ If you use MemoRAG in your research, please cite our paper:
   address   = {Sydney, Australia},
   publisher = {ACM},
   url       = {https://arxiv.org/abs/2409.05591},
-  note      = {arXiv:2409.05591}
 }
 ```
 
