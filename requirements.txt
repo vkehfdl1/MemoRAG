@@ -1,3 +1,4 @@
+torch
 transformers>=4.43.1
 deepspeed>=0.14.0 
 minference==0.1.5

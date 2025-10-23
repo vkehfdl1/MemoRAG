@@ -1,0 +1,25 @@
+[project]
+name = "memorag"
+version = "0.1.0"
+requires-python = ">=3.10, <3.13"
+dependencies = [
+    "accelerate>=1.11.0",
+    "datasets>=4.2.0",
+    "deepspeed>=0.14.0",
+    "fuzzywuzzy>=0.18.0",
+    "jieba>=0.42.1",
+    "langdetect>=1.0.9",
+    "minference==0.1.5",
+    "openai>=2.6.0",
+    "python-levenshtein>=0.27.1",
+    "rouge>=1.0.1",
+    "seaborn>=0.13.2",
+    "semantic-text-splitter>=0.28.0",
+    "tiktoken>=0.12.0",
+    "torch>=2.3.1",
+    "transformers>=4.43.1",
+    "triton==2.3.1",
+]
+
+[tool.uv.extra-build-dependencies]
+minference = ["torch"]
