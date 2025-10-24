@@ -42,8 +42,6 @@ class MemoRAGLite:
         customized_gen_model=None,
         ret_hit: int = 3,
         retrieval_chunk_size: int = 512,
-        cache_dir: Optional[str] = None,
-        access_token: Optional[str] = None,
         load_in_4bit: bool = False,
         enable_flash_attn: bool = True):
         
@@ -54,7 +52,7 @@ class MemoRAGLite:
 
         if gen_model_name_or_path:
             self.gen_model = Model(
-                gen_model_name_or_path, cache_dir=cache_dir, access_token=access_token, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn)
+                gen_model_name_or_path, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn)
         elif customized_gen_model:  # for API-based models
             self.gen_model = customized_gen_model
         else:
@@ -63,7 +61,6 @@ class MemoRAGLite:
         self.ret_model_name_or_path = ret_model_name_or_path
         self.retrieval_chunk_size = retrieval_chunk_size
         self.ret_hit = ret_hit
-        self.cache_dir = cache_dir
         self.load_in_4bit = load_in_4bit
 
         self.prefix = "<|im_start|>user\n{input}"
@@ -251,7 +248,6 @@ class MemoRAGLite:
         self.retriever = DenseRetriever(
             self.ret_model_name_or_path,
             hits=self.ret_hit,
-            cache_dir=self.cache_dir,
             load_in_4bit=self.load_in_4bit
         )
 
@@ -345,7 +341,6 @@ class MemoRAGLite:
             self.retriever = DenseRetriever(
                 self.ret_model_name_or_path,
                 hits=self.ret_hit,
-                cache_dir=self.cache_dir,
                 load_in_4bit=self.load_in_4bit
             )
         _index = FaissIndex(self.retriever.device)

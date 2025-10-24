@@ -29,12 +29,11 @@ class Model:
     def __init__(
         self, 
         model_name_or_path: str, 
-        cache_dir: str | None=None,
-        access_token: str="",
         beacon_ratio: int = 4,
         load_in_4bit: bool=False,
-        enable_flash_attn: bool=False
-    ):  
+        enable_flash_attn: bool=False,
+        max_new_tokens: int = 4096,
+    ):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if enable_flash_attn:
             if model_name_or_path.find("mistral") != -1:
@@ -53,6 +52,7 @@ class Model:
             # "attn_implementation": attn_implementation,
             "torch_dtype": torch.bfloat16,
             "trust_remote_code": True,
+            "max_new_tokens": max_new_tokens,
         }
         self.model_name_or_path = model_name_or_path
 
@@ -316,8 +316,6 @@ class MemoRAG:
         customized_gen_model=None,
         ret_hit:int=3,
         retrieval_chunk_size:int=512,
-        cache_dir:Optional[str]=None,
-        access_token:Optional[str]=None,
         beacon_ratio:int=4,
         load_in_4bit:bool=False,
         enable_flash_attn: bool=True):
@@ -329,18 +327,20 @@ class MemoRAG:
             self.prompts = en_prompts
 
         self.mem_model = Memory(
-            mem_model_name_or_path, cache_dir=cache_dir, beacon_ratio=beacon_ratio, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn)
+            mem_model_name_or_path, beacon_ratio=beacon_ratio, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn,
+            max_new_tokens=512)
 
         if gen_model_name_or_path:
             self.gen_model = Model(
-                gen_model_name_or_path, cache_dir=cache_dir, access_token=access_token, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn)      
+                gen_model_name_or_path, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn,
+                max_new_tokens=4096)
         elif customized_gen_model:  # for API-based models
             self.gen_model = customized_gen_model
         else:
             self.gen_model = self.mem_model    
 
         self.retriever = DenseRetriever(
-            ret_model_name_or_path, hits=ret_hit, cache_dir=cache_dir, load_in_4bit=load_in_4bit)
+            ret_model_name_or_path, hits=ret_hit, load_in_4bit=load_in_4bit)
 
         self.text_splitter = TextSplitter.from_tiktoken_model(
             "gpt-3.5-turbo", retrieval_chunk_size)

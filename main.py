@@ -1,8 +1,6 @@
 from memorag.memorag import MemoRAG
 import click
 import pandas as pd
-from dotenv import load_dotenv
-import os
 
 @click.command()
 @click.option("--corpus_data_path", type=click.Path(exists=True, file_okay=True, dir_okay=False), required=True, help="Path to the corpus data file.")
@@ -12,15 +10,14 @@ def cli(corpus_data_path, memory_dir, compress_ratio):
     """
     Command-line interface to create and save a MemoRAG memory from a corpus data file.
     """
-    hf_token = os.environ["HF_TOKEN"]
     corpus_df = pd.read_parquet(corpus_data_path)
     contents = "\n\n".join(corpus_df['contents'].tolist())
 
     pipe = MemoRAG(
         mem_model_name_or_path="TommyChien/memorag-qwen2-7b-inst",
         ret_model_name_or_path="intfloat/multilingual-e5-large-instruct",
+        gen_model_name_or_path="Qwen/Qwen3-8B",
         beacon_ratio=compress_ratio,
-        access_token=hf_token,
     )
     pipe.memorize(contents, save_dir=memory_dir, print_stats=True)
     print(f"Memory saved to {memory_dir}")
@@ -32,5 +29,4 @@ def cli(corpus_data_path, memory_dir, compress_ratio):
 
 
 if __name__ == "__main__":
-    load_dotenv()
     cli()
