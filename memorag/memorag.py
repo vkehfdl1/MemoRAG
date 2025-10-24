@@ -1,18 +1,16 @@
 import torch
 from transformers.utils import logging
-from typing import Dict, Union, List, Optional
+from typing import Union, List, Optional, Union
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, DynamicCache
 from transformers.tokenization_utils_base import BatchEncoding
 from itertools import chain
 from semantic_text_splitter import TextSplitter
 from .retrieval import DenseRetriever, FaissIndex
-from typing import Dict, List, Union
 from .prompt import en_prompts, zh_prompts
 import os 
 import json
 import tiktoken
 import copy
-from minference import MInference
 
 logger = logging.get_logger(__name__)          
 
@@ -31,11 +29,11 @@ class Model:
     def __init__(
         self, 
         model_name_or_path: str, 
-        cache_dir: str="",
+        cache_dir: str | None=None,
         access_token: str="",
-        beacon_ratio: int=None,
+        beacon_ratio: int = 4,
         load_in_4bit: bool=False,
-        enable_flash_attn: bool=True
+        enable_flash_attn: bool=False
     ):  
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if enable_flash_attn:
@@ -50,10 +48,9 @@ class Model:
             load_in_4bit = True
 
         self.model_kwargs = {
-            "cache_dir": cache_dir,
-            "token": access_token,
-            "device_map": {"": device},
-            "attn_implementation": attn_implementation,
+            # "token": access_token,
+            "device_map": "auto",
+            # "attn_implementation": attn_implementation,
             "torch_dtype": torch.bfloat16,
             "trust_remote_code": True,
         }
@@ -69,8 +66,7 @@ class Model:
             self.model_kwargs["beacon_ratio"] = [beacon_ratio]
 
         tokenizer_kwargs = {
-            "cache_dir": cache_dir,
-            "token": access_token,
+            # "token": access_token,
             "padding_side": "left",
             "trust_remote_code": True,
         }
@@ -136,9 +132,9 @@ class Model:
 
         return inputs
 
-    def minference_patch(self, model_type:str="meta-llama/Meta-Llama-3.1-8B-Instruct"):
-        minference_patch = MInference("minference", model_type)
-        self.model=minference_patch(self.model)
+    # def minference_patch(self, model_type:str="meta-llama/Meta-Llama-3.1-8B-Instruct"):
+    #     minference_patch = MInference("minference", model_type)
+    #     self.model=minference_patch(self.model)
 
     def reload_model(self):
         # TODO 
@@ -214,7 +210,7 @@ class Memory(Model):
                 self.model(**context_inputs)
             self.memory = self.model.memory.export()
         elif self.memo_type == "longllm":
-            self.minference_patch()
+            # self.minference_patch()
             self.memory = DynamicCache()
             with torch.no_grad():
                 model_outputs = self.model(**context_inputs, past_key_values=self.memory)
@@ -316,7 +312,7 @@ class MemoRAG:
         self, 
         mem_model_name_or_path: str, 
         ret_model_name_or_path: str,
-        gen_model_name_or_path: str=None,
+        gen_model_name_or_path: Optional[str]=None,
         customized_gen_model=None,
         ret_hit:int=3,
         retrieval_chunk_size:int=512,

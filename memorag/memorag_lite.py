@@ -11,11 +11,10 @@ import time
 import json
 import tiktoken
 import copy
-from minference import MInference
 from langdetect import detect
-from .memorag import Model, merge_inputs
-from .retrieval import DenseRetriever, FaissIndex
-from .prompt import en_prompts, zh_prompts
+from memorag import Model, merge_inputs
+from memorag.retrieval import DenseRetriever, FaissIndex
+from memorag.prompt import en_prompts, zh_prompts
 import pynvml
 
 def get_first_gpu_memory():
