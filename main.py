@@ -23,8 +23,8 @@ def cli(corpus_data_path, memory_dir, compress_ratio):
     print(f"Memory saved to {memory_dir}")
     query = "What are the central allegations linking these multiple lawsuits against Prudential Financial, and how have they progressed through the courts?"
 
-    res = pipe(context=contents, query=query, 
-    task_type="memorag", max_new_tokens=256)
+    res = pipe(context=contents, query=query,
+    task_type="memorag", max_new_tokens=4096)
     print(f"MemoRAG generated answer: \n{res}")
 
 

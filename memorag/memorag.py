@@ -32,7 +32,6 @@ class Model:
         beacon_ratio: int = 4,
         load_in_4bit: bool=False,
         enable_flash_attn: bool=False,
-        max_new_tokens: int = 4096,
     ):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if enable_flash_attn:
@@ -52,7 +51,6 @@ class Model:
             # "attn_implementation": attn_implementation,
             "torch_dtype": torch.bfloat16,
             "trust_remote_code": True,
-            "max_new_tokens": max_new_tokens,
         }
         self.model_name_or_path = model_name_or_path
 
@@ -328,12 +326,11 @@ class MemoRAG:
 
         self.mem_model = Memory(
             mem_model_name_or_path, beacon_ratio=beacon_ratio, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn,
-            max_new_tokens=512)
+            )
 
         if gen_model_name_or_path:
             self.gen_model = Model(
-                gen_model_name_or_path, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn,
-                max_new_tokens=4096)
+                gen_model_name_or_path, load_in_4bit=load_in_4bit, enable_flash_attn=enable_flash_attn,)
         elif customized_gen_model:  # for API-based models
             self.gen_model = customized_gen_model
         else:
