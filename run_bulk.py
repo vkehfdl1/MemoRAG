@@ -19,8 +19,8 @@ def cli(qa_data_path, memory_dir, compress_ratio: int, result_save_path: str):
 
     pipe = MemoRAG(
         mem_model_name_or_path="TommyChien/memorag-qwen2-7b-inst",
-        ret_model_name_or_path="intfloat/multilingual-e5-large-instruct",
-        gen_model_name_or_path="Qwen/Qwen3-8B",
+        ret_model_name_or_path="BAAI/bge-m3",
+        gen_model_name_or_path="TommyChien/memorag-qwen2-7b-inst",
         beacon_ratio=compress_ratio,
     )
     if not os.path.exists(os.path.join(memory_dir, "memory.bin")):
